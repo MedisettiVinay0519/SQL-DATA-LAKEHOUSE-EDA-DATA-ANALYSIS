@@ -50,18 +50,6 @@ This project covers the complete data warehousing lifecycle:
 
 ---
 
-## 🎯 Who This Project Is For
-
-This repository is ideal for professionals and students looking to showcase skills in:
-
-- SQL Development  
-- Data Architecture  
-- Data Engineering  
-- ETL Pipeline Development  
-- Data Modeling  
-- Data Analytics  
-
----
 
 ## 🧰 Tools & Technologies Used
 
