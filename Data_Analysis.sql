@@ -149,4 +149,40 @@ FROM yearly_product_sales
 ORDER BY product_name, order_year;
 
 
+--which categories contribute the most to overall sales?
+WITH category_sales AS (
+SELECT
+category,
+SUM(sales_amount) as total_sales
+FROM gold.fact_sales as f
+LEFT JOIN gold.dim_products as p
+on p.product_key = f.product_key
+GROUP BY category
+)
+
+SELECT category,total_sales,
+       SUM(total_sales) OVER() as overall_sales,
+   CONCAT( ROUND( (CAST (total_sales as FLOAT)/SUM(total_sales) OVER())*100,2),'%') as percent_contribution
+FROM category_sales
+ORDER BY total_sales DESC;
+
+/* Segment products into cost rnages and 
+count how many products fall into each segment*/
+
+WITH PROD_SEGMENT AS (
+SELECT product_key,
+product_name,
+cost,
+CASE WHEN cost<100 THEN 'Below 100'
+     WHEN cost between 100 AND 500 THEN '100-200'
+     WHEN COST between 500 and 1000 then '500-1000'
+     ELSE 'Above 1000'
+END as cost_range
+FROM gold.dim_products
+)
+SELECT cost_range,
+COUNT(product_key) as Total_Products 
+FROM PROD_SEGMENT
+GROUP BY cost_range
+ORDER BY Total_Products DESC ;
 
