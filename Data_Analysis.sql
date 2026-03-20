@@ -186,3 +186,55 @@ FROM PROD_SEGMENT
 GROUP BY cost_range
 ORDER BY Total_Products DESC ;
 
+
+
+/* GROUP CUSTOMERS INTO THREE SEGEMENTS BASED ON THEIR SPENDING BEHAVIOUR
+--VIP : AT LEAST 12 MONTHS OF HSITORY AND SPENDING MORE THAN 5000
+--Regular:  AT LEAST 12 MONTHS OF HSITORY AND SPENDING LESS THAN 5000
+--NEW:LIFESPAN LES THAN 12 MONTHS 
+*/
+--AND FIND THE TOTAL NUMBBER OF CUSTOMERS BY EACH GROUP
+
+
+WITH customer_spending AS (
+    SELECT
+        c.customer_key,
+        SUM(f.sales_amount) AS total_spending,
+        MIN(order_date) AS first_order,
+        MAX(order_date) AS last_order,
+        DATEDIFF(month, MIN(order_date), MAX(order_date)) AS lifespan
+    FROM gold.fact_sales f
+    LEFT JOIN gold.dim_customers c
+        ON f.customer_key = c.customer_key
+    GROUP BY c.customer_key
+),
+
+
+segmented_customers as (
+    SELECT 
+        customer_key,
+        CASE 
+            WHEN lifespan >= 12 AND total_spending > 5000 THEN 'VIP'
+            WHEN lifespan >= 12 AND total_spending <= 5000 THEN 'Regular'
+            ELSE 'New'
+        END AS customer_segment
+    FROM customer_spending
+)
+
+
+SELECT 
+    customer_segment,
+    COUNT(customer_key) AS total_customers
+FROM segmented_customers 
+GROUP BY customer_segment
+ORDER BY total_customers DESC;
+
+
+
+
+
+
+
+
+
+
